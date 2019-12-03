@@ -15,7 +15,7 @@ A password strength checker for flutter.
   ```
     import 'package:flutter_password_strength/flutter_password_strength.dart';
 
-    AnimatedPasswordStrength(
+    FlutterPasswordStrength(
       password: _password, 
       strengthCallback: (strength){
         debugPrint(strength.toString());
