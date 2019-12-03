@@ -1,8 +1,7 @@
 name: flutter_password_strength
-description: A new Flutter package project.
+description: A password strength checker for flutter.
 version: 0.0.1
-author:
-homepage:
+homepage: https://github.com/JinHoSo/flutter-password-strength
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
