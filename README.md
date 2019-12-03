@@ -19,4 +19,6 @@ A password strength checker for flutter.
     )
   ```
 
+## Screenshot
 
+![](https://media.giphy.com/media/kbuhBEahzQAtifnfSL/giphy.gif)
