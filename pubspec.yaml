@@ -1,6 +1,6 @@
 name: flutter_password_strength
-description: A password strength checker for flutter.
-version: 0.0.1
+description: A password strength checker for flutter, works for Android and iOS.
+version: 0.1.2
 homepage: https://github.com/JinHoSo/flutter-password-strength
 
 environment:
