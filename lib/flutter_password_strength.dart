@@ -30,15 +30,15 @@ class FlutterPasswordStrength extends StatefulWidget {
   final void Function(double strength) strengthCallback;
 
   const FlutterPasswordStrength(
-      { Key key,
-        @required this.password,
-        this.width,
-        this.height = 5,
-        this.strengthColors,
-        this.backgroundColor = Colors.grey,
-        this.radius = 0,
-        this.duration,
-        this.strengthCallback})
+      {Key key,
+      @required this.password,
+      this.width,
+      this.height = 5,
+      this.strengthColors,
+      this.backgroundColor = Colors.grey,
+      this.radius = 0,
+      this.duration,
+      this.strengthCallback})
       : super(key: key);
 
   /*
@@ -88,7 +88,6 @@ class FlutterPasswordStrength extends StatefulWidget {
 
 class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
     with SingleTickerProviderStateMixin {
-  
   //Animation controller for strength bar
   AnimationController _animationController;
 
@@ -163,7 +162,7 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
 
     _animationController.forward(from: 0.0);
 
-    if(_strengthCallback != null){
+    if (_strengthCallback != null) {
       _strengthCallback(_passwordStrength);
     }
   }
