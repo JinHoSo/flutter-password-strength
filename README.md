@@ -23,8 +23,9 @@ A password strength checker for flutter.
     )
   ```
 
-### Password Input Props
-| Attribute  | Default  | Type | Description |
+### Arguments
+
+| Arguments  | Default  | Type | Description |
 | :------------ |---------------:| :---------------| :-----|
 | password | required | String | Password  |
 | width | null | double | Strength bar width |
