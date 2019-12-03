@@ -34,4 +34,4 @@ A password strength checker for flutter.
 | backgroundColor | Colors.grey| Color | background for strength bar |
 | radius | 0 | double | Strength bar radius  |
 | duration | 3000 | Duration | Animation duration |
-| strengthCallback | null | `void Function(double strength)` | Strength callback |
+| strengthCallback | null | `void Function(double strength)` | Strength callback, return between 0 to 1 |
