@@ -12,7 +12,7 @@ class SignInForm extends StatefulWidget {
 class _SignInFormState extends State<SignInForm> {
   final _formKey = GlobalKey<FormState>();
 
-  String _password;
+  String _password = "";
 
   Widget build(BuildContext context) {
     return Container(

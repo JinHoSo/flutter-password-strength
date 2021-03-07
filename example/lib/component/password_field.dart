@@ -5,7 +5,7 @@ class PasswordField extends StatefulWidget {
   final Function onSaved;
   final Function onChanged;
 
-  PasswordField({Key key, @required this.onSaved, @required this.onChanged})
+  PasswordField({Key? key, required this.onSaved, required this.onChanged})
       : super(key: key);
 
   @override
@@ -13,11 +13,9 @@ class PasswordField extends StatefulWidget {
 }
 
 class _PasswordFieldState extends State<PasswordField> {
-  String _password;
-  bool _isPasswordDirty = false;
 
-  String validatePassword(String value) {
-    if (value.isEmpty) {
+  String? validatePassword(String? value) {
+    if (value==null || value.isEmpty) {
       return 'enter password.';
     }
 
@@ -32,19 +30,11 @@ class _PasswordFieldState extends State<PasswordField> {
       keyboardType: TextInputType.text,
       obscureText: true,
       validator: validatePassword,
-      autovalidate: _isPasswordDirty,
+      autovalidateMode: AutovalidateMode.always,
       onChanged: (value) {
-        setState(() {
-          _isPasswordDirty = true;
-        });
-
         widget.onChanged(value);
       },
       onSaved: (value) {
-        setState(() {
-          _password = value;
-        });
-
         widget.onSaved(value);
       },
       decoration: InputDecoration(
