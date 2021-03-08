@@ -30,7 +30,7 @@ class _PasswordFieldState extends State<PasswordField> {
       keyboardType: TextInputType.text,
       obscureText: true,
       validator: validatePassword,
-      autovalidateMode: AutovalidateMode.always,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) {
         widget.onChanged(value);
       },
