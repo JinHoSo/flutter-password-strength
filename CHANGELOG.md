@@ -1,3 +1,5 @@
+## [0.1.6] - migrate to null safety.
+
 ## [0.1.5] - Bugfix: Dispose Issue.
 
 ## [0.1.4] - changed license to MIT.
