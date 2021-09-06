@@ -1,21 +1,24 @@
-library flutter_password_strength;
+/*
+ * Author : Julien Scholz
+ * https://github.com/Pikaju/PasswordStrength
+ */
+
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'src/estimate_bruteforce_strength.dart';
-
 class FlutterPasswordStrength extends StatefulWidget {
-  final String? password;
+  final String password;
 
   //Strength bar width
-  final double? width;
+  final double width;
 
   //Strength bar height
   final double height;
 
   //Strength bar colors are changed depending on strength
-  final Animatable<Color>? strengthColors;
+  final Animatable<Color> strengthColors;
 
   //Strength bar background color
   final Color backgroundColor;
@@ -24,21 +27,25 @@ class FlutterPasswordStrength extends StatefulWidget {
   final double radius;
 
   //Strength bar animation duration
-  final Duration? duration;
+  final Duration duration;
+
+  //Optional parameter for custom/third party strength calculation algorithm
+  final double Function(String password) strengthCalculator;
 
   //Strength callback
-  final void Function(double strength)? strengthCallback;
+  final void Function(double strength) strengthCallback;
 
   const FlutterPasswordStrength(
-      { Key? key,
-        required this.password,
-        this.width,
-        this.height = 5,
-        this.strengthColors,
-        this.backgroundColor = Colors.grey,
-        this.radius = 0,
-        this.duration,
-        this.strengthCallback})
+      {Key key,
+      @required this.password,
+      this.width,
+      this.height = 5,
+      this.strengthColors,
+      this.backgroundColor = Colors.grey,
+      this.radius = 0,
+      this.duration,
+      this.strengthCallback,
+      this.strengthCalculator})
       : super(key: key);
 
   /*
@@ -49,9 +56,9 @@ class FlutterPasswordStrength extends StatefulWidget {
     0.51 ~ 0.75 : blue
     0.76 ~ 1 : green
   */
-  Animatable<Color?> get _strengthColors => (strengthColors != null
+  Animatable<Color> get _strengthColors => (strengthColors != null
       ? strengthColors
-      : TweenSequence<Color?>(
+      : TweenSequence<Color>(
           [
             TweenSequenceItem(
               weight: 1.0,
@@ -75,10 +82,10 @@ class FlutterPasswordStrength extends StatefulWidget {
               ),
             ),
           ],
-        )) as Animatable<Color?>;
+        ));
 
   //default duration is 300 milliseconds
-  Duration? get _duration =>
+  Duration get _duration =>
       duration != null ? duration : Duration(milliseconds: 300);
 
   @override
@@ -89,31 +96,34 @@ class FlutterPasswordStrength extends StatefulWidget {
 class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
     with SingleTickerProviderStateMixin {
   //Animation controller for strength bar
-  late AnimationController _animationController;
+  AnimationController _animationController;
 
   //Animation for strength bar sharp
-  late Animation<double> _strengthBarAnimation;
+  Animation<double> _strengthBarAnimation;
 
   //Strength bar colors
-  late Animatable<Color?> _strengthBarColors;
+  Animatable<Color> _strengthBarColors;
 
   //Strength bar color from the list of strength bar colors
-  late Color _strengthBarColor;
+  Color _strengthBarColor;
 
   //Strength bar color
-  late Color _backgroundColor;
+  Color _backgroundColor;
 
   //Strength bar width
-  double? _width;
+  double _width;
 
   //Strength bar height
-  late double _height;
+  double _height;
 
   //Strength bar radius, default is 0
   double _radius = 0;
 
   //Strength callback
-  void Function(double strength)? _strengthCallback;
+  void Function(double strength) _strengthCallback;
+
+  //Optional parameter for custom/third party strength calculation algorithm
+  double Function(String password) _strengthCalculator;
 
   //_begin is used in _strengthBarAnimation
   double _begin = 0;
@@ -134,8 +144,9 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
     _strengthBarAnimation =
         Tween<double>(begin: _begin, end: _end).animate(_animationController);
     _strengthBarColors = widget._strengthColors;
-    _strengthBarColor =
-        _strengthBarColors.evaluate(AlwaysStoppedAnimation(_passwordStrength)) ?? Colors.transparent;
+    _strengthBarColor = _strengthBarColors
+            .evaluate(AlwaysStoppedAnimation(_passwordStrength)) ??
+        Colors.transparent;
 
     _backgroundColor = widget.backgroundColor;
 
@@ -143,6 +154,9 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
     _height = widget.height;
     _radius = widget.radius;
     _strengthCallback = widget.strengthCallback;
+    _strengthCalculator = widget.strengthCalculator == null
+        ? estimateBruteforceStrength
+        : widget.strengthCalculator;
 
     //start animation
     _animationController.forward();
@@ -150,20 +164,21 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
 
   void animate() {
     //calculate strength
-    _passwordStrength = estimateBruteforceStrength(widget.password ?? "");
+    _passwordStrength = _strengthCalculator(widget.password ?? "");
 
     _begin = _end;
     _end = _passwordStrength * 100;
 
     _strengthBarAnimation =
         Tween<double>(begin: _begin, end: _end).animate(_animationController);
-    _strengthBarColor =
-        _strengthBarColors.evaluate(AlwaysStoppedAnimation(_passwordStrength)) ?? Colors.transparent;
+    _strengthBarColor = _strengthBarColors
+            .evaluate(AlwaysStoppedAnimation(_passwordStrength)) ??
+        Colors.transparent;
 
     _animationController.forward(from: 0.0);
 
-    if(_strengthCallback != null){
-      _strengthCallback!(_passwordStrength);
+    if (_strengthCallback != null) {
+      _strengthCallback(_passwordStrength);
     }
   }
 
@@ -197,18 +212,18 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
 class StrengthBarContainer extends AnimatedWidget {
   final Color barColor;
   final Color backgroundColor;
-  final double? width;
+  final double width;
   final double height;
   final double radius;
 
   const StrengthBarContainer(
-      {Key? key,
-      required this.barColor,
-      required this.backgroundColor,
+      {Key key,
+      @required this.barColor,
+      @required this.backgroundColor,
       this.width,
-      required this.height,
-      required this.radius,
-      required Animation animation})
+      @required this.height,
+      @required this.radius,
+      @required Animation animation})
       : super(key: key, listenable: animation);
 
   Animation<double> get _percent {
@@ -237,7 +252,10 @@ class StrengthBar extends CustomPainter {
   double barRadius;
   double percent;
 
-  StrengthBar({required this.barColor, required this.barRadius, required this.percent});
+  StrengthBar(
+      {@required this.barColor,
+      @required this.barRadius,
+      @required this.percent});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -276,9 +294,10 @@ class StrengthBar extends CustomPainter {
 
 class StrengthBarBackground extends CustomPainter {
   Color backgroundColor;
-  double? backgroundRadius;
+  double backgroundRadius;
 
-  StrengthBarBackground({required this.backgroundColor, this.backgroundRadius});
+  StrengthBarBackground(
+      {@required this.backgroundColor, this.backgroundRadius});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -308,4 +327,34 @@ class StrengthBarBackground extends CustomPainter {
   bool shouldRepaint(StrengthBarBackground old) {
     return true;
   }
+}
+
+double estimateBruteforceStrength(String password) {
+  if (password.isEmpty) return 0.0;
+
+  // Check which types of characters are used and create an opinionated bonus.
+  double charsetBonus;
+  if (RegExp(r'^[a-z]*$').hasMatch(password)) {
+    charsetBonus = 1.0;
+  } else if (RegExp(r'^[a-z0-9]*$').hasMatch(password)) {
+    charsetBonus = 1.2;
+  } else if (RegExp(r'^[a-zA-Z]*$').hasMatch(password)) {
+    charsetBonus = 1.3;
+  } else if (RegExp(r'^[a-z\-_!?]*$').hasMatch(password)) {
+    charsetBonus = 1.3;
+  } else if (RegExp(r'^[a-zA-Z0-9]*$').hasMatch(password)) {
+    charsetBonus = 1.5;
+  } else {
+    charsetBonus = 1.8;
+  }
+
+  final logisticFunction = (double x) {
+    return 1.0 / (1.0 + exp(-x));
+  };
+
+  final curve = (double x) {
+    return logisticFunction((x / 3.0) - 4.0);
+  };
+
+  return curve(password.length * charsetBonus);
 }
