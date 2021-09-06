@@ -26,6 +26,9 @@ class FlutterPasswordStrength extends StatefulWidget {
   //Strength bar animation duration
   final Duration? duration;
 
+  //Optional parameter for custom/third party strength calculation algorithm
+  final double Function(String password)? strengthCalculator;
+
   //Strength callback
   final void Function(double strength)? strengthCallback;
 
@@ -38,7 +41,8 @@ class FlutterPasswordStrength extends StatefulWidget {
         this.backgroundColor = Colors.grey,
         this.radius = 0,
         this.duration,
-        this.strengthCallback})
+        this.strengthCallback,
+        this.strengthCalculator})
       : super(key: key);
 
   /*
@@ -52,30 +56,30 @@ class FlutterPasswordStrength extends StatefulWidget {
   Animatable<Color?> get _strengthColors => (strengthColors != null
       ? strengthColors
       : TweenSequence<Color?>(
-          [
-            TweenSequenceItem(
-              weight: 1.0,
-              tween: ColorTween(
-                begin: Colors.red,
-                end: Colors.yellow,
-              ),
-            ),
-            TweenSequenceItem(
-              weight: 1.0,
-              tween: ColorTween(
-                begin: Colors.yellow,
-                end: Colors.blue,
-              ),
-            ),
-            TweenSequenceItem(
-              weight: 1.0,
-              tween: ColorTween(
-                begin: Colors.blue,
-                end: Colors.green,
-              ),
-            ),
-          ],
-        )) as Animatable<Color?>;
+    [
+      TweenSequenceItem(
+        weight: 1.0,
+        tween: ColorTween(
+          begin: Colors.red,
+          end: Colors.yellow,
+        ),
+      ),
+      TweenSequenceItem(
+        weight: 1.0,
+        tween: ColorTween(
+          begin: Colors.yellow,
+          end: Colors.blue,
+        ),
+      ),
+      TweenSequenceItem(
+        weight: 1.0,
+        tween: ColorTween(
+          begin: Colors.blue,
+          end: Colors.green,
+        ),
+      ),
+    ],
+  )) as Animatable<Color?>;
 
   //default duration is 300 milliseconds
   Duration? get _duration =>
@@ -115,6 +119,9 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
   //Strength callback
   void Function(double strength)? _strengthCallback;
 
+  //Optional parameter for custom/third party strength calculation algorithm
+  double Function(String password)? _strengthCalculator;
+
   //_begin is used in _strengthBarAnimation
   double _begin = 0;
 
@@ -143,6 +150,7 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
     _height = widget.height;
     _radius = widget.radius;
     _strengthCallback = widget.strengthCallback;
+    _strengthCalculator = widget.strengthCalculator == null ? estimateBruteforceStrength : widget.strengthCalculator;
 
     //start animation
     _animationController.forward();
@@ -150,7 +158,7 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
 
   void animate() {
     //calculate strength
-    _passwordStrength = estimateBruteforceStrength(widget.password ?? "");
+    _passwordStrength = _strengthCalculator!(widget.password ?? "");
 
     _begin = _end;
     _end = _passwordStrength * 100;
@@ -203,12 +211,12 @@ class StrengthBarContainer extends AnimatedWidget {
 
   const StrengthBarContainer(
       {Key? key,
-      required this.barColor,
-      required this.backgroundColor,
-      this.width,
-      required this.height,
-      required this.radius,
-      required Animation animation})
+        required this.barColor,
+        required this.backgroundColor,
+        this.width,
+        required this.height,
+        required this.radius,
+        required Animation animation})
       : super(key: key, listenable: animation);
 
   Animation<double> get _percent {
@@ -219,16 +227,16 @@ class StrengthBarContainer extends AnimatedWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      return Container(
-          child: CustomPaint(
-              size: Size(width ?? constraints.maxWidth, height),
-              painter: StrengthBarBackground(
-                  backgroundColor: backgroundColor, backgroundRadius: radius),
-              foregroundPainter: StrengthBar(
-                  barColor: barColor,
-                  barRadius: radius,
-                  percent: _percent.value)));
-    });
+          return Container(
+              child: CustomPaint(
+                  size: Size(width ?? constraints.maxWidth, height),
+                  painter: StrengthBarBackground(
+                      backgroundColor: backgroundColor, backgroundRadius: radius),
+                  foregroundPainter: StrengthBar(
+                      barColor: barColor,
+                      barRadius: radius,
+                      percent: _percent.value)));
+        });
   }
 }
 
