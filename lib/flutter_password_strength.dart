@@ -169,8 +169,8 @@ class _FlutterPasswordStrengthState extends State<FlutterPasswordStrength>
 
   @override
   void dispose() {
-    super.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override
