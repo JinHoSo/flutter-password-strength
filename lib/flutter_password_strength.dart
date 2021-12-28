@@ -64,13 +64,6 @@ class FlutterPasswordStrength extends StatefulWidget {
               weight: 1.0,
               tween: ColorTween(
                 begin: Colors.yellow,
-                end: Colors.blue,
-              ),
-            ),
-            TweenSequenceItem(
-              weight: 1.0,
-              tween: ColorTween(
-                begin: Colors.blue,
                 end: Colors.green,
               ),
             ),
